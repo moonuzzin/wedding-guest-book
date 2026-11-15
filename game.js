@@ -288,7 +288,6 @@
       player = actor({ x: 351 * S + (Math.random() - .5) * 120, row: nextRow(), name: '나' });
       actors.push(player);
       for (let i = 0; i < 5; i++) spawn({});
-      document.body.classList.add('go');
       requestAnimationFrame(loop);
     }),
     spawnGuest: (name, msg) => { const a = spawn({ name, lines: msg ? [msg] : [] }); if (msg) say(a, msg, 5); return a; },

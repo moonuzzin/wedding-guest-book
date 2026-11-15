@@ -10,6 +10,28 @@
   $$('[data-date]').forEach(e => e.textContent = C.date);
   $('#demo').hidden = !DEMO;
 
+  // ── 배경음악 ──
+  // 폰 브라우저는 '터치'가 한 번 있어야 소리를 낼 수 있음 → '입장하기' 화면으로 첫 터치를 받음.
+  // 그 전에 다른 곳(사진 올리기 등)을 먼저 터치해도 음악이 켜짐. 끄는 버튼은 없음.
+  const bgm = new Audio('assets/bgm.mp3');
+  bgm.loop = true; bgm.volume = 0.5; bgm.preload = 'auto';
+  let started = false, entered = false;
+  const play = () => { if (!started) bgm.play().then(() => { started = true; }).catch(() => {}); };
+  const enter = () => {
+    play();
+    if (entered) return;
+    entered = true; $('#enter').remove(); document.body.classList.add('go'); // 맵 이름 배너는 입장할 때
+  };
+  play(); // PC 등 자동재생이 허용된 곳에선 바로 재생
+  ['pointerup', 'touchend', 'keydown'].forEach(t => addEventListener(t, enter));
+  document.addEventListener('visibilitychange', () => { // 다른 앱으로 가면 멈추고, 돌아오면 다시
+    if (document.hidden) bgm.pause(); else if (started) bgm.play().catch(() => {});
+  });
+
+  // ── 화면 확대 막기 (아이폰은 viewport 설정을 무시해서 직접 막음) ──
+  document.addEventListener('gesturestart', e => e.preventDefault());
+  document.addEventListener('touchmove', e => { if (e.touches.length > 1) e.preventDefault(); }, { passive: false });
+
   // ── 알림 ──
   let toastT;
   function toast(...parts) { // parts: 문자열, 또는 [강조문자열]

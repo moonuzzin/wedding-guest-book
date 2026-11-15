@@ -8,7 +8,7 @@
 }
 [hidden] { display: none !important; }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-html { background: #6e5f9e; }
+html { background: #6e5f9e; touch-action: pan-x pan-y; } /* 두 손가락 확대·두 번 탭 확대 막기 */
 body {
   margin: 0; color: var(--ink);
   font: 13px/1.6 Galmuri11, 'Apple SD Gothic Neo', sans-serif;
@@ -46,14 +46,17 @@ body {
 .pad button.jump { width: 66px; height: 66px; font-size: 14px; background: rgba(255, 214, 92, .82); border-color: var(--gold-edge); color: #5a3500; }
 .pad button.on { translate: 0 2px; box-shadow: inset 0 2px 0 rgba(0,0,0,.2); filter: brightness(.9); }
 
-/* 배경음악 버튼 (미니맵과 같은 남색 반투명) */
-.bgm {
-  position: absolute; top: 5px; right: 8px; padding: 4px 9px; cursor: pointer;
-  font: 11px Galmuri11, sans-serif; color: #ffe9a8; background: rgba(20,24,40,.72);
-  border: 1px solid rgba(255,255,255,.35); user-select: none; -webkit-user-select: none;
+/* 입장하기 화면 (첫 터치 = 음악 시작) */
+.enter { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(25, 18, 50, .45); z-index: 2; }
+.enter button {
+  display: grid; gap: 2px; justify-items: center; padding: 14px 34px 12px; cursor: pointer; color: #fff;
+  background: rgba(15, 20, 45, .8); border: 1px solid rgba(255,255,255,.4); box-shadow: 0 0 0 3px rgba(15,20,45,.35);
+  animation: breathe 1.6s ease-in-out infinite;
 }
-.bgm[aria-pressed="false"] { color: #9a9aa8; text-decoration: line-through; }
-.bgm:active { translate: 0 1px; }
+.enter small { font: 11px Galmuri11, sans-serif; color: #ffe39a; letter-spacing: .1em; }
+.enter b { font: 700 24px Maple, Galmuri11, sans-serif; text-shadow: 0 2px 0 #000; }
+.enter span { font: 11px Galmuri11, sans-serif; color: #e8dcff; margin-top: 4px; }
+@keyframes breathe { 50% { scale: 1.04; } }
 
 /* ── 창 (식권과 같은 크림+검정 테두리, 도트 모서리) ── */
 .win {
