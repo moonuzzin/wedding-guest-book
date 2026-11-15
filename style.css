@@ -1,0 +1,133 @@
+@font-face {
+  font-family: Maple; font-weight: 700; font-display: swap;
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_20-04@2.1/MaplestoryOTFBold.woff') format('woff');
+}
+:root {
+  --sky: #b9e9ff; --pink: #ffc9cf; --cream: #fffde8; --ink: #1d1a17;
+  --slot: #e8ddc2; --gold1: #ffe07a; --gold2: #f3a823; --gold-edge: #7a4a06;
+}
+[hidden] { display: none !important; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html { background: var(--sky); }
+body {
+  margin: 0; color: var(--ink);
+  font: 13px/1.6 Galmuri11, 'Apple SD Gothic Neo', sans-serif;
+  background: linear-gradient(var(--sky) 0 60%, var(--pink)) fixed;
+  -webkit-font-smoothing: none;
+}
+.app { max-width: 480px; margin: 0 auto; padding-bottom: calc(24px + env(safe-area-inset-bottom)); }
+
+/* ── 맵 ── */
+.stage {
+  position: relative; height: clamp(420px, 66svh, 582px);
+  border-bottom: 3px solid var(--ink); overflow: hidden; background: #7fc8f8;
+}
+#game { display: block; width: 100%; height: 100%; image-rendering: pixelated; touch-action: none; }
+.mapname {
+  position: absolute; left: 50%; top: 51%; translate: -50% 0; pointer-events: none;
+  text-align: center; white-space: nowrap; color: #fff;
+  visibility: hidden; padding: 6px 22px 8px; background: rgba(15, 20, 45, .66); border: 1px solid rgba(255,255,255,.35);
+}
+.go .mapname { visibility: visible; animation: mapname 6s .4s both;
+}
+.mapname small { display: block; font-size: 11px; color: #ffe39a; letter-spacing: .1em; }
+.mapname b { font: 700 19px Maple, Galmuri11, sans-serif; text-shadow: 0 1px 0 #000; }
+.mapname i { color: #ff8fb7; font-style: normal; }
+@keyframes mapname { 0% { opacity: 0; translate: -50% 6px } 12%, 80% { opacity: 1; translate: -50% 0 } 100% { opacity: 0; visibility: hidden } }
+
+.pad { position: absolute; bottom: calc(10px + env(safe-area-inset-bottom) * 0); display: flex; gap: 8px; align-items: flex-end; }
+.pad.left { left: 10px; } .pad.right { right: 10px; }
+.pad button {
+  width: 54px; height: 54px; border-radius: 50%; border: 2px solid rgba(0,0,0,.55);
+  background: rgba(255,255,255,.55); color: #2a2a2a; font: 18px Galmuri11, sans-serif;
+  box-shadow: inset 0 -3px 0 rgba(0,0,0,.15); touch-action: none; user-select: none; -webkit-user-select: none;
+}
+.pad button.small { width: 42px; height: 42px; font-size: 14px; }
+.pad button.jump { width: 66px; height: 66px; font-size: 14px; background: rgba(255, 214, 92, .82); border-color: var(--gold-edge); color: #5a3500; }
+.pad button.on { translate: 0 2px; box-shadow: inset 0 2px 0 rgba(0,0,0,.2); filter: brightness(.9); }
+
+/* ── 창 (식권과 같은 크림+검정 테두리, 도트 모서리) ── */
+.win {
+  margin: 18px 14px 0; background: var(--cream); border: 2px solid var(--ink);
+  clip-path: polygon(0 6px, 2px 6px, 2px 4px, 4px 4px, 4px 2px, 6px 2px, 6px 0, calc(100% - 6px) 0, calc(100% - 6px) 2px, calc(100% - 4px) 2px, calc(100% - 4px) 4px, calc(100% - 2px) 4px, calc(100% - 2px) 6px, 100% 6px, 100% calc(100% - 6px), calc(100% - 2px) calc(100% - 6px), calc(100% - 2px) calc(100% - 4px), calc(100% - 4px) calc(100% - 4px), calc(100% - 4px) calc(100% - 2px), calc(100% - 6px) calc(100% - 2px), calc(100% - 6px) 100%, 6px 100%, 6px calc(100% - 2px), 4px calc(100% - 2px), 4px calc(100% - 4px), 2px calc(100% - 4px), 2px calc(100% - 6px), 0 calc(100% - 6px));
+  box-shadow: inset 0 0 0 2px #fff;
+}
+.bar {
+  margin: 0; padding: 8px 14px 7px; font: 700 17px Maple, Galmuri11, sans-serif;
+  border-bottom: 2px solid var(--ink); background: var(--sky); display: flex; align-items: center; gap: 8px;
+}
+#guestbook .bar { background: var(--pink); }
+.bar small { font: 11px Galmuri11, sans-serif; opacity: .7; }
+.body { padding: 14px; display: grid; gap: 12px; }
+
+/* NPC 대화창 */
+.npc { display: grid; grid-template-columns: auto 1fr; align-items: end; gap: 6px; padding: 14px 14px 12px; position: relative; }
+.npc .face { height: 64px; grid-row: 1; image-rendering: auto; }
+.npc .face.g { grid-column: 1; } .npc .face.b { grid-column: 1; margin-left: 40px; }
+.npc-text { grid-column: 2; grid-row: 1; padding-left: 4px; }
+.npc-text p { margin: 0; word-break: keep-all; }
+.npc .who { font: 700 15px Maple, Galmuri11, sans-serif; margin-bottom: 4px; }
+.npc .who em { font: 11px Galmuri11, sans-serif; font-style: normal; opacity: .6; margin-left: 4px; }
+
+/* 입력 */
+.field { display: grid; gap: 4px; font-size: 12px; }
+.field small { opacity: .6; }
+input[type=text], textarea {
+  font: 16px Galmuri11, sans-serif; /* 16px 미만이면 iOS가 확대함 */
+  width: 100%; padding: 8px 10px; border: 2px solid var(--ink); background: #fff; color: var(--ink);
+  border-radius: 0; resize: vertical; box-shadow: inset 2px 2px 0 #e9e4cf;
+}
+input:focus, textarea:focus { outline: 3px solid #7cc6ff; outline-offset: 0; }
+::placeholder { color: #aaa192; }
+
+/* 메이플 노란 버튼 */
+.btn {
+  display: block; text-align: center; cursor: pointer; user-select: none; -webkit-user-select: none;
+  font: 700 15px Maple, Galmuri11, sans-serif; color: #fff; text-shadow: 0 1px 0 #8a4d00, 1px 0 0 #8a4d00, -1px 0 0 #8a4d00, 0 -1px 0 #8a4d00;
+  padding: 10px; border: 2px solid var(--gold-edge); border-radius: 6px;
+  background: linear-gradient(var(--gold1), var(--gold2)); box-shadow: inset 0 2px 0 rgba(255,255,255,.6), 0 3px 0 var(--gold-edge);
+}
+.btn.big { padding: 13px; font-size: 17px; }
+.btn:active { translate: 0 2px; box-shadow: inset 0 2px 0 rgba(255,255,255,.4), 0 1px 0 var(--gold-edge); }
+.btn[disabled] { filter: grayscale(1); opacity: .6; }
+.btn.retry { background: linear-gradient(#ffb3a8, #e35d4c); border-color: #6e1b10; text-shadow: 0 1px 0 #6e1b10; box-shadow: 0 3px 0 #6e1b10; }
+
+/* EXP 바 = 업로드 진행 */
+.exp { position: relative; height: 16px; background: #3a3a3a; border: 1px solid #000; }
+.exp i { position: absolute; inset: 1px auto 1px 1px; width: 0; background: linear-gradient(#f6ff9c, #c5e83a 50%, #8fbf1a); transition: width .3s; }
+.exp span { position: absolute; left: 4px; top: 0; font: 10px/14px Galmuri11, sans-serif; color: #ffd84a; text-shadow: 1px 1px 0 #000; }
+.exp em { position: absolute; inset: 0; text-align: center; font: 10px/14px Galmuri11, sans-serif; font-style: normal; color: #fff; text-shadow: 1px 1px 0 #000; }
+
+/* 인벤토리 */
+.cnt { margin-left: auto; font: 12px Galmuri11, sans-serif; background: #fff; border: 2px solid var(--ink); padding: 0 6px; }
+.inv { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; padding: 6px; background: #c9b98f; border: 2px solid #6b5a3a; }
+.inv > * { aspect-ratio: 1; background: var(--slot); box-shadow: inset 2px 2px 0 #b5a57d, inset -1px -1px 0 #fff8e4; overflow: hidden; position: relative; }
+.inv img { width: 100%; height: 100%; object-fit: cover; display: block; animation: pop .35s cubic-bezier(.3,1.6,.6,1); }
+.inv .up img { opacity: .45; }
+.inv .bad::after { content: '!'; position: absolute; inset: 0; display: grid; place-items: center; color: #fff; background: rgba(200,40,40,.55); font-size: 18px; }
+@keyframes pop { from { scale: .4 } }
+.hint { margin: 0; font-size: 11px; opacity: .65; }
+
+/* 방명록 */
+.gb { list-style: none; margin: 0; padding: 0 14px 14px; display: grid; gap: 8px; }
+.gb li { background: #fff; border: 2px solid var(--ink); padding: 8px 10px; word-break: keep-all; overflow-wrap: anywhere; }
+.gb li.new { animation: pop .35s cubic-bezier(.3,1.6,.6,1); }
+.gb b { font-size: 12px; color: #2b4a7a; }
+.gb time { float: right; font-size: 10px; opacity: .5; }
+.gb p { margin: 2px 0 0; white-space: pre-wrap; }
+.gb:empty::before { content: '아직 방명록이 없어요. 첫 번째로 남겨주세요!'; opacity: .55; font-size: 12px; }
+
+footer { text-align: center; font-size: 11px; opacity: .7; padding-top: 20px; }
+footer p { margin: 2px; }
+.demo { color: #a8436a; }
+
+/* 메이플 획득 알림 */
+.toast {
+  position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom)); translate: -50% 20px; opacity: 0;
+  padding: 7px 14px; background: rgba(15, 20, 45, .85); color: #fff; font-size: 12px; white-space: nowrap;
+  border: 1px solid rgba(255,255,255,.3); transition: opacity .25s, translate .25s; pointer-events: none; z-index: 9;
+}
+.toast.show { opacity: 1; translate: -50% 0; }
+.toast b { color: #ffe066; font-weight: normal; }
+
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } .mapname { display: none; } }

@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>식권용 QR 만들기</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/galmuri@2.40.3/dist/galmuri.css">
+<style>
+  body { margin: 0; padding: 24px 16px; font: 14px/1.6 Galmuri11, sans-serif; background: #b9e9ff; color: #1d1a17; display: grid; justify-items: center; gap: 12px; }
+  input { font: 16px Galmuri11, sans-serif; width: min(420px, 100%); padding: 8px; border: 2px solid #1d1a17; }
+  label { display: grid; gap: 4px; width: min(420px, 100%); }
+  .row { display: flex; gap: 8px; }
+  canvas { image-rendering: pixelated; width: 260px; height: 260px; border: 2px solid #1d1a17; background: #fff; }
+  button { font: 15px Galmuri11, sans-serif; padding: 10px 18px; border: 2px solid #7a4a06; border-radius: 6px; background: linear-gradient(#ffe07a, #f3a823); cursor: pointer; }
+  p { margin: 0; font-size: 12px; opacity: .7; max-width: 420px; }
+</style>
+</head>
+<body>
+  <h2 style="margin:0">식권용 QR 만들기</h2>
+  <label>깃허브 페이지 주소
+    <input id="url" placeholder="https://아이디.github.io/저장소이름/">
+  </label>
+  <div class="row">
+    <label style="width:auto">배경 <input type="color" id="bg" value="#fffde8" style="width:60px;padding:0;height:36px"></label>
+    <label style="width:auto">점 색 <input type="color" id="fg" value="#1d1a17" style="width:60px;padding:0;height:36px"></label>
+  </div>
+  <canvas id="c"></canvas>
+  <button id="dl">PNG 저장 (인쇄용 고해상도)</button>
+  <p>식권의 "Groom's Guest (no. )" 칸 옆이나 아래에 넣으면 돼요. 인쇄 전에 꼭 휴대폰 카메라로 찍어서 열리는지 확인하세요. 가운데 하트가 있어도 인식되도록 오류보정을 최고(H)로 했어요.</p>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+<script>
+const $ = id => document.getElementById(id), c = $('c'), ctx = c.getContext('2d');
+const HEART = ['.##.##.', '#######', '#######', '.#####.', '..###..', '...#...'];
+$('url').value = localStorage.getItem('qrUrl') || location.href.replace(/qr\.html.*$/, '');
+function draw(scale = 12) {
+  const qr = qrcode(0, 'H'); qr.addData($('url').value.trim() || ' '); qr.make();
+  const n = qr.getModuleCount(), q = 4, size = (n + q * 2) * scale;
+  c.width = c.height = size;
+  ctx.fillStyle = $('bg').value; ctx.fillRect(0, 0, size, size);
+  ctx.fillStyle = $('fg').value;
+  for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) if (qr.isDark(y, x)) ctx.fillRect((x + q) * scale, (y + q) * scale, scale, scale);
+  // 가운데 픽셀 하트
+  const p = Math.max(2, Math.round(n / 25)) * scale / 2, hw = 7 * p, hh = 6 * p, ox = (size - hw) / 2, oy = (size - hh) / 2;
+  ctx.fillStyle = $('bg').value; ctx.fillRect(ox - p, oy - p, hw + 2 * p, hh + 2 * p);
+  HEART.forEach((r, j) => [...r].forEach((ch, i) => { if (ch === '#') { ctx.fillStyle = '#ff6f9f'; ctx.fillRect(ox + i * p, oy + j * p, p, p); } }));
+}
+['url', 'bg', 'fg'].forEach(id => $(id).addEventListener('input', () => { localStorage.setItem('qrUrl', $('url').value); draw(); }));
+$('dl').onclick = () => { draw(24); const a = document.createElement('a'); a.download = 'wedding-qr.png'; a.href = c.toDataURL(); a.click(); draw(); };
+draw();
+</script>
+</body>
+</html>
