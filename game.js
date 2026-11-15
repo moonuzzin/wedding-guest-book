@@ -169,12 +169,61 @@
     ctx.font = '10px Galmuri11, sans-serif'; ctx.fillStyle = '#ffe9a8'; ctx.textAlign = 'left'; ctx.textBaseline = 'top';
     ctx.fillText('웨딩빌리지 : 결혼식장', x0, y0 - 1);
     ctx.imageSmoothingEnabled = true; ctx.drawImage(map, x0, y0 + 13, mw, mh); ctx.imageSmoothingEnabled = false;
+    ctx.globalCompositeOperation = 'multiply'; ctx.fillStyle = '#c99ab0'; ctx.fillRect(x0, y0 + 13, mw, mh); ctx.globalCompositeOperation = 'source-over';
     const dot = (wx, wy, col) => { ctx.fillStyle = '#000'; ctx.fillRect(x0 + wx / W * mw - 2, y0 + 13 + wy / H * mh - 4, 5, 5); ctx.fillStyle = col; ctx.fillRect(x0 + wx / W * mw - 1, y0 + 13 + wy / H * mh - 3, 3, 3); };
     COUPLE.forEach(c => dot(c.x, ISLAND_Y, '#ff7eb6'));
     actors.forEach(a => a !== player && dot(a.x, a.y, '#ff4b4b'));
     dot(player.x, player.y, '#ffe600');
     ctx.strokeStyle = 'rgba(255,255,255,.8)';
     ctx.strokeRect(x0 + camX / W * mw + .5, y0 + 13 + camY / H * mh + .5, vw / W * mw, Math.min(vh, H) / H * mh);
+  }
+
+  // ── 노을 (17시 야시장 분위기) ─────────────────────
+  // 맵 위에만 덧칠하고 캐릭터는 그 위에 그려서 또렷하게 유지. 색은 DUSK 숫자만 바꾸면 조절됨.
+  const DUSK = [ // [맵 높이 비율, 색] 위→아래. multiply라 어두운 색일수록 더 어두워짐
+    [0.00, '#5b4f9c'], [0.30, '#c98aa8'], [0.55, '#f6b27a'], [0.70, '#e7a07c'], [1.00, '#8d6f8f']];
+  const LIGHTS = [ // 따뜻하게 빛나는 곳 (원본 맵 좌표): 가로등, 웨딩숍 창문, 하트 풍선
+    [260, 166, 46], [560, 163, 34], [577, 222, 22], [633, 222, 22], [593, 115, 30], [236, 22, 26], [478, 22, 26]];
+  const BULBS = []; // 제단 위 두 기둥 사이에 늘어진 전구줄
+  for (let i = 0; i <= 22; i++) { const t = i / 22; BULBS.push([232 + t * 246, 58 + Math.sin(t * Math.PI) * 30, Math.random() * 6]); }
+  const STARS = Array.from({ length: 28 }, () => [Math.random() * 686, Math.random() * 60, Math.random() * 6]);
+  const MOTES = Array.from({ length: 16 }, () => [Math.random() * 686, 150 + Math.random() * 100, Math.random() * 6]);
+
+  function glow(x, y, r, a, rgb = '255,190,110') {
+    const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+    g.addColorStop(0, `rgba(${rgb},${a})`); g.addColorStop(1, `rgba(${rgb},0)`);
+    ctx.fillStyle = g; ctx.fillRect(x - r, y - r, r * 2, r * 2);
+  }
+
+  function dusk() {
+    const ox = -camX, oy = -camY, px = (sx) => Math.round(ox + sx * S), py = (sy) => Math.round(oy + sy * S);
+    ctx.globalCompositeOperation = 'multiply';
+    const g = ctx.createLinearGradient(0, oy, 0, oy + H);
+    DUSK.forEach(([p, c]) => g.addColorStop(p, c));
+    ctx.fillStyle = g; ctx.fillRect(0, 0, vw, vh);
+    ctx.globalCompositeOperation = 'lighter';
+    for (const [x, y, r] of LIGHTS) glow(px(x), py(y), r * S * (0.95 + Math.sin(time * 2 + x) * 0.05), 0.42);
+    // 별
+    for (const [x, y, k] of STARS) {
+      const a = 0.35 + 0.65 * Math.max(0, Math.sin(time * 1.3 + k));
+      ctx.fillStyle = `rgba(255,248,220,${a})`; ctx.fillRect(px(x), py(y), 2, 2);
+    }
+    // 전구줄
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.strokeStyle = 'rgba(40,25,30,.75)'; ctx.lineWidth = 1; ctx.beginPath();
+    BULBS.forEach(([x, y], i) => i ? ctx.lineTo(px(x), py(y) - 2) : ctx.moveTo(px(x), py(y) - 2)); ctx.stroke();
+    ctx.globalCompositeOperation = 'lighter';
+    for (const [x, y, k] of BULBS) {
+      const on = 0.6 + 0.4 * Math.sin(time * 3 + k);
+      glow(px(x), py(y) + 1, 10, 0.35 * on);
+      ctx.fillStyle = `rgba(255,225,150,${0.7 + 0.3 * on})`; ctx.fillRect(px(x) - 1, py(y), 3, 3);
+    }
+    // 떠다니는 불빛
+    for (const [x, y, k] of MOTES) {
+      const mx = px(x + Math.sin(time * 0.4 + k) * 12), my = py(y + Math.sin(time * 0.7 + k * 2) * 8);
+      glow(mx, my, 7, 0.5 + 0.3 * Math.sin(time * 2 + k));
+    }
+    ctx.globalCompositeOperation = 'source-over';
   }
 
   // ── 루프 ──────────────────────────────────────────
@@ -200,6 +249,7 @@
     ctx.imageSmoothingEnabled = false;
     ctx.fillStyle = '#7fc8f8'; ctx.fillRect(0, 0, vw, vh);
     ctx.drawImage(map, Math.round(-camX), Math.round(-camY), W, H);
+    dusk();
     drawCouple();
     for (const h of hearts) heart(h.x - camX, h.y - camY, Math.min(1, 3.2 - h.t));
     actors.filter(a => a !== player).forEach(drawActor);
