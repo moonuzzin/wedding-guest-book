@@ -22,8 +22,9 @@
     if (entered) return;
     entered = true; $('#enter').remove(); document.body.classList.add('go'); // 맵 이름 배너는 입장할 때
   };
-  play(); // PC 등 자동재생이 허용된 곳에선 바로 재생
-  ['pointerup', 'touchend', 'keydown'].forEach(t => addEventListener(t, enter));
+  // 페이지 열자마자 자동재생 X, 스크롤(touchend) X → '탭'했을 때만 시작
+  // (pointerup은 스크롤하면 취소돼서 안 옴)
+  ['pointerup', 'keydown'].forEach(t => addEventListener(t, enter));
   document.addEventListener('visibilitychange', () => { // 다른 앱으로 가면 멈추고, 돌아오면 다시
     if (document.hidden) bgm.pause(); else if (started) bgm.play().catch(() => {});
   });
